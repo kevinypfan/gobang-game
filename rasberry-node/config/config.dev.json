@@ -1,0 +1,7 @@
+{
+	"development": {
+		"BROKER_IP": "mqtt://120.105.129.49",
+		"BROKER_PORT": "1883",
+		"PORT": "3000"
+	}
+}
