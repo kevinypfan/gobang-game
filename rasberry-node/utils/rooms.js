@@ -1,3 +1,5 @@
+const uuidv4 = require('uuid/v4');
+
 class Room {
     constructor() {
         this.rooms = []
@@ -14,7 +16,8 @@ class Room {
 
     joinRoom(roomId, clientUser) {
         const room = this.getRoom(roomId);
-        if (room.joined.length > 1) {
+
+        if (room.joined.length > 1 && room.owner) {
             return;
         }
         room.joined.push({ ...clientUser, ready: false })
@@ -24,6 +27,11 @@ class Room {
     gamerReadyChange(roomId, clientUser) {
         const room = this.getRoom(roomId);
 
+    }
+    createRoboticRoom(roomName) {
+        let room = { id: uuidv4(), roomName, joined: [] };
+        this.rooms.push(room);
+        return room;
     }
 
     createRoom(roomName, owner) {

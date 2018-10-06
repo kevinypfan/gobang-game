@@ -54,16 +54,22 @@ app.get('/getRoomStatus/:roomId', (req, res) => {
 app.post('/joinRoom', (req, res) => {
     const body = _.pick(req.body, ['roomId', 'gamer'])
     const nowRoom = room.getRoom(body.roomId);
-    if (nowRoom.joined.length != 0) {
-        return callback('Room fulled');
+    if (nowRoom.joined.length != 0 && nowRoom.owner) {
+        return res.status(406).send('Room fulled');
     }
     const gameRoom = room.joinRoom(body.roomId, body.gamer)
     if (!gameRoom) {
-        return callback('Room has some error!');
+        return res.status(404).send('Room has some error!');
     }
     mqttPub.publish(`gobang/updateRoomList`, JSON.stringify(room.roomList))
     mqttPub.publish(`gobang/${gameRoom.id}/updateRoomDetail`, JSON.stringify(gameRoom), null, (err) => {
         if (err) return res.status(406).send({ error: true, message: err })
+        if (gameRoom.joined.length == 2) {
+            mqttPub.publish(`gobang/${gameRoom.id}/startGame`, 'start', null, (err) => {
+                if (err) return res.status(406).send({ error: true, message: err })
+                res.status(206).send({ error: false, message: 'game start!' })
+            })
+        }
         res.status(206).send(gameRoom)
     })
 })

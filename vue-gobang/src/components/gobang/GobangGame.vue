@@ -9,7 +9,7 @@
 </template>
 <script>
 export default {
-  props: ["character", "room"],
+  props: ['character', 'room'],
   data: () => ({
     player: 1,
     over: false,
@@ -84,12 +84,12 @@ export default {
         this.player1[i] = 0;
         this.player2[i] = 0;
       }
-      var chess = document.getElementById("chess");
-      var context = chess.getContext("2d");
-      context.strokeStyle = "#fff";
+      var chess = document.getElementById('chess');
+      var context = chess.getContext('2d');
+      context.strokeStyle = '#fff';
       context.clearRect(0, 0, chess.width, chess.height);
 
-      context.strokeStyle = "#000";
+      context.strokeStyle = '#000';
 
       var drawChessBoard = function() {
         for (var i = 0; i < 15; i++) {
@@ -104,13 +104,10 @@ export default {
         }
       };
       drawChessBoard();
-    }
-  },
-  mounted() {
-    this.resetData();
-    var chess = document.getElementById("chess");
-    var context = chess.getContext("2d");
-    var oneStep = (i, j) => {
+    },
+    oneStep(i, j) {
+      var chess = document.getElementById('chess');
+      var context = chess.getContext('2d');
       context.beginPath();
       context.arc(15 + i * 30, 15 + j * 30, 13, 0, 2 * Math.PI);
       context.closePath();
@@ -123,19 +120,18 @@ export default {
         0
       );
       if (this.player == 1) {
-        gradient.addColorStop(0, "#0A0A0A");
-        gradient.addColorStop(1, "#636766");
+        gradient.addColorStop(0, '#0A0A0A');
+        gradient.addColorStop(1, '#636766');
       } else if (this.player == 2) {
-        gradient.addColorStop(0, "#D1D1D1");
-        gradient.addColorStop(1, "#F9F9F9");
+        gradient.addColorStop(0, '#D1D1D1');
+        gradient.addColorStop(1, '#F9F9F9');
       }
       context.fillStyle = gradient;
       context.fill();
-    };
-
-    const pressMethod = (i, j) => {
+    },
+    pressMethod(i, j) {
       if (this.chessBoard[i][j] == 0) {
-        oneStep(i, j);
+        this.oneStep(i, j);
 
         if (this.player == 1) {
           this.chessBoard[i][j] = 1;
@@ -144,7 +140,7 @@ export default {
               this.player1[k]++;
               this.player2[k] = 6;
               if (this.player1[k] == 5) {
-                window.alert("this.player1 win!");
+                window.alert('this.player1 win!');
                 this.over = true;
               }
             }
@@ -157,7 +153,7 @@ export default {
               this.player2[k]++;
               this.player1[k] = 6;
               if (this.player2[k] == 5) {
-                window.alert("this.player2 win!");
+                window.alert('this.player2 win!');
                 this.over = true;
               }
             }
@@ -165,11 +161,15 @@ export default {
           this.player = 1;
         }
       }
-    };
-
+    }
+  },
+  mounted() {
+    this.resetData();
+    var chess = document.getElementById('chess');
+    var context = chess.getContext('2d');
     this.$options.sockets.chessPressed = data => {
       const { chessPos, userData } = data;
-      pressMethod(chessPos.i, chessPos.j);
+      this.pressMethod(chessPos.i, chessPos.j);
     };
 
     chess.onclick = e => {
@@ -184,14 +184,14 @@ export default {
       var i = Math.floor(x / 30); //Math.floor向下取整
       var j = Math.floor(y / 30);
       this.$socket.emit(
-        "pressChess",
+        'pressChess',
         {
           chessPos: { i, j },
           roomData: this.room,
           userData: this.$store.state.user
         },
         () => {
-          pressMethod(i, j);
+          this.pressMethod(i, j);
         }
       );
     };

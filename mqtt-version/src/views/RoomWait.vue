@@ -4,7 +4,7 @@
   <p>Room: {{room.roomName}}</p>
   <button @click="startGame">Start</button>
   <div class="row">
-    <div class="col-6">
+    <div class="col-6" v-if="room.owner">
       <ul class="list-group">
       <li 
         class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"
@@ -16,14 +16,25 @@
     </div>
     <div class="col-6">
       <ul class="list-group">
-      <li 
-        v-if="room.joined.length > 0"
-        class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"
-      >
-        {{ room.joined[0].name }}
-        <span class="badge badge-primary badge-pill">{{ room.joined[0].ready ? 'ready': ''  }}</span>
-      </li>
-    </ul>
+        <li 
+          v-if="room.joined.length > 0"
+          class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"
+        >
+          {{ room.joined[0].name }}
+          <span class="badge badge-primary badge-pill">{{ room.joined[0].ready ? 'ready': ''  }}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="col-6" v-if="room.joined.length > 1">
+      <ul class="list-group">
+        <li 
+          v-if="room.joined.length > 0"
+          class="list-group-item d-flex list-group-item-action justify-content-between align-items-center"
+        >
+          {{ room.joined[1].name }}
+          <span class="badge badge-primary badge-pill">{{ room.joined[1].ready ? 'ready': ''  }}</span>
+        </li>
+      </ul>
     </div>
   </div>
 </div>
@@ -35,16 +46,19 @@ export default {
     room: null
   }),
   mqtt: {
-    "gobang/#"(data, topic) {
-      const topicArray = topic.split("/");
+    'gobang/#'(data, topic) {
+      console.log(topic);
+      const topicArray = topic.split('/');
       if (this.room) {
         if (topicArray[1] === this.room.id) {
+          console.log(topicArray[2]);
           switch (topicArray[2]) {
-            case "gameStarted":
-              this.$router.push("/gamepage/" + this.room.id);
+            case 'startGame':
+              console.log('gameStarted');
+              this.$router.push('/gamepage/' + this.room.id);
               break;
-            case "updateRoomDetail":
-              this.room = JSON.parse(data);
+            case 'updateRoomDetail':
+              this.room = JSON.parse(data.toString());
               break;
           }
         }
@@ -53,9 +67,9 @@ export default {
   },
   mounted() {
     this.axios
-      .get("/getRoomStatus/" + this.$route.params.id)
+      .get('/getRoomStatus/' + this.$route.params.id)
       .then(({ data }) => {
-        this.$store.commit("setRoom", data);
+        this.$store.commit('setRoom', data);
         this.room = data;
       })
       .catch(err => console.log(err));
@@ -63,9 +77,9 @@ export default {
   methods: {
     startGame() {
       if (this.$store.state.user.id == this.room.owner.id) {
-        this.$socket.emit("startGame", this.room);
+        this.$socket.emit('startGame', this.room);
         this.axios
-          .post("/startGame", {
+          .post('/startGame', {
             user: this.$store.state.user,
             roomData: this.room
           })
