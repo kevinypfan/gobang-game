@@ -44,7 +44,7 @@ app.get('/getRoomList', (req, res) => {
 
 app.get('/getRoomStatus/:roomId', (req, res) => {
     const gameRoom = room.getRoom(req.params.roomId);
-    console.log(gameRoom)
+
     if (!gameRoom) {
         return res.status(404).send('no room!');
     }
@@ -64,12 +64,12 @@ app.post('/joinRoom', (req, res) => {
     mqttPub.publish(`gobang/updateRoomList`, JSON.stringify(room.roomList))
     mqttPub.publish(`gobang/${gameRoom.id}/updateRoomDetail`, JSON.stringify(gameRoom), null, (err) => {
         if (err) return res.status(406).send({ error: true, message: err })
-        if (gameRoom.joined.length == 2) {
-            mqttPub.publish(`gobang/${gameRoom.id}/startGame`, 'start', null, (err) => {
-                if (err) return res.status(406).send({ error: true, message: err })
-                res.status(206).send({ error: false, message: 'game start!' })
-            })
-        }
+        // if (gameRoom.joined.length == 2) {
+        //     mqttPub.publish(`gobang/${gameRoom.id}/startGame`, 'start', null, (err) => {
+        //         if (err) return res.status(406).send({ error: true, message: err })
+        //         res.status(206).send({ error: false, message: 'game start!' })
+        //     })
+        // }
         res.status(206).send(gameRoom)
     })
 })
@@ -88,9 +88,29 @@ app.post('/startGame', (req, res) => {
 app.post('/hasUser', (req, res) => {
     const body = _.pick(req.body, ['userId'])
     const hasUser = user.getUser(body.userId)
+    console.log('hasUser: ', hasUser)
     res.status(200).send(hasUser);
 })
 
+// app.post('/getGameStatus', (req, res) => {
+//     const body = _.pick(req.body, ['roomId'])
+//     console.log('roomId: ', body.roomId)
+//     const filterGame = games.filter((game) => {
+//         return body.roomId === game.roomId
+//     })
+//     console.log('filterGame: ', filterGame)
+//     if (filterGame.length === 0) {
+//         const game = new Game(body.roomData)
+//         games.push(game)
+
+//         return res.status(201).send(game)
+//     }
+//     if (filterGame.length === 1) {
+//         return res.status(200).send(filterGame[0])
+//     }
+//     res.status(402).send('something wrong!')
+// })
+
 app.listen(process.env.PORT, () => {
-    console.log('server start up port: ', process.env.PORT)
+
 })

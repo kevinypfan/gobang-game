@@ -1,4 +1,5 @@
 const MQTT = require("mqtt");
+const rooms = require('./utils/rooms');
 
 const client = MQTT.connect(`${process.env.BROKER_IP}:${process.env.BROKER_PORT}`);
 // When passing async functions as event listeners, make sure to have a try catch block
@@ -25,9 +26,11 @@ client.on('message', function (topic, message) {
         switch (topicArray[2]) {
             case 'pressChess':
                 data = JSON.parse(message.toString());
-                client.publish(`gobang/${data.roomData.id}/RoboAction`, JSON.stringify({ action: true }))
+                const room = rooms.addChessPos(topicArray[1], data)
+                console.log(room)
+                client.publish(`gobang/${topicArray[1]}/RoboAction`, JSON.stringify({ action: true }))
                 waitRobot().then(_ => {
-                    client.publish(`gobang/${data.roomData.id}/RoboAction`, JSON.stringify({ action: false }))
+                    client.publish(`gobang/${topicArray[1]}/RoboAction`, JSON.stringify({ action: false }))
                 })
                 // 機械手臂溝通
                 break;

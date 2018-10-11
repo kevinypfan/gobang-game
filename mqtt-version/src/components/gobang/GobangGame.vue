@@ -9,7 +9,7 @@
 </template>
 <script>
 export default {
-  props: ['character', 'room'],
+  props: ["character", "room"],
   data: () => ({
     player: 1,
     over: false,
@@ -21,16 +21,16 @@ export default {
     robotAction: false
   }),
   mqtt: {
-    'gobang/#'(data, topic) {
+    "gobang/#"(data, topic) {
       console.log(topic);
-      const topicArray = topic.split('/');
+      const topicArray = topic.split("/");
       if (topicArray[1] === this.$route.params.id) {
         switch (topicArray[2]) {
-          case 'pressChess':
-            const { chessPos } = JSON.parse(data.toString());
-            this.pressMethod(chessPos.i, chessPos.j);
+          case "pressChess":
+            const chessPos = JSON.parse(data.toString());
+            this.pressMethod(chessPos.x, chessPos.y);
             break;
-          case 'RoboAction':
+          case "RoboAction":
             const { action } = JSON.parse(data.toString());
             this.robotAction = action;
             break;
@@ -48,11 +48,11 @@ export default {
   computed: {
     whoTurn() {
       if (this.robotAction) {
-        return '機器手臂運作中...';
+        return "機器手臂運作中...";
       } else if (this.over) {
-        return '遊戲結束!';
+        return "遊戲結束!";
       } else {
-        return this.player == 1 ? '黑棋' : '白棋';
+        return this.player == 1 ? "黑棋" : "白棋";
       }
     }
   },
@@ -116,12 +116,12 @@ export default {
         this.player1[i] = 0;
         this.player2[i] = 0;
       }
-      var chess = document.getElementById('chess');
-      var context = chess.getContext('2d');
-      context.strokeStyle = '#fff';
+      var chess = document.getElementById("chess");
+      var context = chess.getContext("2d");
+      context.strokeStyle = "#fff";
       context.clearRect(0, 0, chess.width, chess.height);
 
-      context.strokeStyle = '#000';
+      context.strokeStyle = "#000";
 
       var drawChessBoard = function() {
         for (var i = 0; i < 15; i++) {
@@ -138,8 +138,8 @@ export default {
       drawChessBoard();
     },
     oneStep(i, j) {
-      var chess = document.getElementById('chess');
-      var context = chess.getContext('2d');
+      var chess = document.getElementById("chess");
+      var context = chess.getContext("2d");
       context.beginPath();
       context.arc(15 + i * 30, 15 + j * 30, 13, 0, 2 * Math.PI);
       context.closePath();
@@ -151,13 +151,15 @@ export default {
         15 + j * 30 - 2,
         0
       );
+
       if (this.player == 1) {
-        gradient.addColorStop(0, '#0A0A0A');
-        gradient.addColorStop(1, '#636766');
+        gradient.addColorStop(0, "#0A0A0A");
+        gradient.addColorStop(1, "#636766");
       } else if (this.player == 2) {
-        gradient.addColorStop(0, '#D1D1D1');
-        gradient.addColorStop(1, '#F9F9F9');
+        gradient.addColorStop(0, "#D1D1D1");
+        gradient.addColorStop(1, "#F9F9F9");
       }
+
       context.fillStyle = gradient;
       context.fill();
     },
@@ -172,7 +174,7 @@ export default {
               this.player1[k]++;
               this.player2[k] = 6;
               if (this.player1[k] == 5) {
-                window.alert('this.player1 win!');
+                window.alert("this.player1 win!");
                 this.over = true;
               }
             }
@@ -185,7 +187,7 @@ export default {
               this.player2[k]++;
               this.player1[k] = 6;
               if (this.player2[k] == 5) {
-                window.alert('this.player2 win!');
+                window.alert("this.player2 win!");
                 this.over = true;
               }
             }
@@ -193,17 +195,18 @@ export default {
           this.player = 1;
         }
       }
+    },
+    reloadGameSetup() {
+      this.room.gameChessStep.forEach(step => {
+        this.pressMethod(step.x, step.y);
+      });
     }
   },
   mounted() {
     this.resetData();
-    var chess = document.getElementById('chess');
-    var context = chess.getContext('2d');
-    // this.$options.sockets.chessPressed = data => {
-    //   const { chessPos, userData } = data;
-    //   this.pressMethod(chessPos.i, chessPos.j);
-    // };
-
+    this.reloadGameSetup();
+    var chess = document.getElementById("chess");
+    var context = chess.getContext("2d");
     chess.onclick = e => {
       if (this.over) {
         return;
@@ -218,13 +221,8 @@ export default {
       var y = e.offsetY;
       var i = Math.floor(x / 30); //Math.floor向下取整
       var j = Math.floor(y / 30);
-      const message = {
-        chessPos: { i, j },
-        roomData: this.room,
-        userData: this.$store.state.user,
-        chessBoard: this.chessBoard
-      };
-      this.pressMethod(i, j);
+      const message = { x: i, y: j, player: this.player };
+      // this.pressMethod(i, j);
       this.$mqtt.publish(
         `gobang/${this.$route.params.id}/pressChess`,
         JSON.stringify(message),
@@ -234,18 +232,6 @@ export default {
           this.pressMethod(i, j);
         }
       );
-      // this.$socket.emit(
-      //   'pressChess',
-      //   {
-      //     chessPos: { i, j },
-      //     roomData: this.room,
-      //     userData: this.$store.state.user,
-      //     chessBoard: this.chessBoard
-      //   },
-      //   () => {
-      //     this.pressMethod(i, j);
-      //   }
-      // );
     };
   }
 };

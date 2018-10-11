@@ -25,23 +25,7 @@ export default {
     // },
   },
   created() {
-    const userId = window.localStorage.getItem("userId");
-    const roomString = window.localStorage.getItem("room");
-    const room = JSON.parse(roomString);
     this.$mqtt.subscribe("gobang/#");
-    // if (!userId) {
-    //   this.$router.replace("/");
-    // } else {
-    //   this.$socket.emit("hasUser", { userId, room }, (err, user) => {
-    //     if (err) {
-    //       console.log(err);
-    //       this.$router.replace("/");
-    //       return;
-    //     }
-    //     this.$store.commit("setRoom", room);
-    //     this.$store.commit("setUser", user);
-    //   });
-    // }
   }
 };
 </script>

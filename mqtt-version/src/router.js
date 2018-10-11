@@ -21,12 +21,18 @@ export default new Router({
     {
       path: '/createroom',
       name: 'createroom',
-      component: CreateRoom
+      component: CreateRoom,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/roomlist',
       name: 'roomlist',
-      component: RoomList
+      component: RoomList,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/about',
@@ -39,12 +45,18 @@ export default new Router({
     {
       path: '/gamepage/:id',
       name: 'gamepage',
-      component: GamePage
+      component: GamePage,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/roomwait/:id',
       name: 'roomwait',
-      component: RoomWait
+      component: RoomWait,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '*',

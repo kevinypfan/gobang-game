@@ -22,16 +22,16 @@ export default {
   }),
   mounted() {
     if (!this.$store.state.user) {
-      const roomString = window.localStorage.getItem('room');
-      const userId = window.localStorage.getItem('userId');
+      const roomString = window.localStorage.getItem("room");
+      const userId = window.localStorage.getItem("userId");
       this.axios
-        .post('hasUser', userId)
+        .post("hasUser", userId)
         .then(result => {
-          this.$store.commit('setUser', user);
+          this.$store.commit("setUser", user);
         })
         .catch(err => {
           console.log(err);
-          this.$router.replace('/');
+          this.$router.replace("/");
         });
       // this.$socket.emit(
       //   "hasUser",
@@ -48,29 +48,29 @@ export default {
       // );
     }
     this.axios
-      .get('/getRoomList')
+      .get("/getRoomList")
       .then(({ data }) => {
         this.roomList = data;
       })
       .catch(err => console.log(err));
   },
   mqtt: {
-    'gobang/updateRoomList'(data, topic) {
+    "gobang/updateRoomList"(data, topic) {
       this.roomList.push(JSON.parse(data));
     }
   },
   methods: {
     joinRoomClick(roomId) {
       this.axios
-        .post('/joinRoom', {
+        .post("/joinRoom", {
           roomId,
           gamer: this.$store.state.user
         })
         .then(({ data }) => {
           console.log(data);
-          this.$store.commit('setRoom', data);
-          window.localStorage.setItem('room', JSON.stringify(data));
-          this.$router.push('/roomwait/' + roomId);
+          this.$store.commit("setRoom", data);
+          window.localStorage.setItem("roomId", data.id);
+          this.$router.push("/roomwait/" + roomId);
         })
         .catch(err => console.log(err));
       // this.$socket.emit(

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import GobangGame from '@/components/gobang/GobangGame.vue';
+import GobangGame from "@/components/gobang/GobangGame.vue";
 export default {
   data: () => ({
     room: null,
@@ -14,10 +14,10 @@ export default {
   },
   created() {
     this.axios
-      .get('/getRoomStatus/' + this.$route.params.id)
+      .get("/getRoomStatus/" + this.$route.params.id)
       .then(({ data }) => {
         this.room = data;
-        console.log();
+        this.$store.commit("setRoom", data);
         if (data.joined.length == 2) {
           this.character =
             this.$store.state.user.id === data.joined[0].id ? 1 : 2;

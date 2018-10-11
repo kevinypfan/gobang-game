@@ -46,18 +46,18 @@ export default {
     room: null
   }),
   mqtt: {
-    'gobang/#'(data, topic) {
+    "gobang/#"(data, topic) {
       console.log(topic);
-      const topicArray = topic.split('/');
+      const topicArray = topic.split("/");
       if (this.room) {
         if (topicArray[1] === this.room.id) {
           console.log(topicArray[2]);
           switch (topicArray[2]) {
-            case 'startGame':
-              console.log('gameStarted');
-              this.$router.push('/gamepage/' + this.room.id);
+            case "startGame":
+              console.log("gameStarted");
+              this.$router.push("/gamepage/" + this.room.id);
               break;
-            case 'updateRoomDetail':
+            case "updateRoomDetail":
               this.room = JSON.parse(data.toString());
               break;
           }
@@ -67,19 +67,23 @@ export default {
   },
   mounted() {
     this.axios
-      .get('/getRoomStatus/' + this.$route.params.id)
+      .get("/getRoomStatus/" + this.$route.params.id)
       .then(({ data }) => {
-        this.$store.commit('setRoom', data);
+        this.$store.commit("setRoom", data);
         this.room = data;
+        console.log(data);
+        if (data.joined.length == 2) {
+          this.$mqtt.publish(`gobang/${data.id}/startGame`, "start");
+        }
       })
       .catch(err => console.log(err));
   },
   methods: {
     startGame() {
       if (this.$store.state.user.id == this.room.owner.id) {
-        this.$socket.emit('startGame', this.room);
+        this.$socket.emit("startGame", this.room);
         this.axios
-          .post('/startGame', {
+          .post("/startGame", {
             user: this.$store.state.user,
             roomData: this.room
           })
