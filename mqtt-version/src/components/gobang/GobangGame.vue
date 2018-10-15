@@ -1,7 +1,7 @@
 <template>
 <div>
   <button type="reset" @click="$socket.emit('resetGame', room)">Reset</button>
-<canvas id="chess" width="450px" height="450px">	
+  <canvas id="chess" width="450px" height="450px">	
 	</canvas>
   <div class="turn">{{whoTurn}}</div>
 </div>
@@ -242,5 +242,18 @@ canvas {
   margin: 50px auto;
   box-shadow: -2px -2px 2px #efefef, 5px 5px 5px #b9b9b9;
   color: #fff;
+}
+
+@media screen and (max-width: 600px) {
+  canvas {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: scale(0.9) translate(-50%, -50%);
+    box-shadow: -2px -2px 2px #efefef, 5px 5px 5px #b9b9b9;
+    color: #fff;
+    transform-origin: left center;
+  }
 }
 </style>
